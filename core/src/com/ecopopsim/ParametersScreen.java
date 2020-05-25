@@ -39,6 +39,7 @@ public class ParametersScreen extends ScreenAdapter {
 		enterParamsLabel.setPosition(col_width*1,Gdx.graphics.getHeight()-row_height*2);
 		stage.addActor(enterParamsLabel);
 
+		// TODO: Input for number of plants
 		// TODO: Params for starting numbers etc. Could add tabs for each creature params
 
 
