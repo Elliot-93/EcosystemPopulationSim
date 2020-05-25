@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.ecopopsim.models.Plant;
 
 import java.util.ArrayList;
@@ -16,14 +15,21 @@ import java.util.Random;
 public class EcosystemPopulationSimScreen extends ScreenAdapter {
 
 	EcosystemPopulationSimGame game;
-	SpriteBatch batch;
+
+	Boolean[] mapXCoordsPopulatedWithPlant;
+	Boolean[] mapYCoordsPopulatedWithPlant;
 
 	List<Plant> plants = new ArrayList<>();
 	Random rand = new Random();
 
 	public EcosystemPopulationSimScreen(EcosystemPopulationSimGame game) {
 		this.game = game;
-		batch = new SpriteBatch();
+
+		// All coords set to true if populated with plant already
+		mapXCoordsPopulatedWithPlant = new Boolean[Gdx.graphics.getHeight()];
+		mapYCoordsPopulatedWithPlant = new Boolean[Gdx.graphics.getWidth()];
+		Arrays.fill(mapXCoordsPopulatedWithPlant, false);
+		Arrays.fill(mapYCoordsPopulatedWithPlant, false);
 	}
 
 	@Override
@@ -34,24 +40,28 @@ public class EcosystemPopulationSimScreen extends ScreenAdapter {
 				if (keyCode == Input.Keys.ESCAPE) {
 					game.setScreen(new ParametersScreen(game));
 				}
+				if (keyCode == Input.Keys.SPACE) {
+					generatePlants();
+				}
 				return true;
 			}
 		});
+
+		generatePlants();
 	}
 
 	@Override
 	public void render (float delta) {
 		Gdx.gl.glClearColor(0.4f, 0.2f, 0f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
+		game.batch.begin();
 
-		generatePlants();
 		for (Plant plant: plants)
 		{
-			plant.draw(batch);
+			plant.draw(game.batch);
 		}
 
-		batch.end();
+		game.batch.end();
 	}
 	
 	@Override
@@ -60,49 +70,40 @@ public class EcosystemPopulationSimScreen extends ScreenAdapter {
 	}
 
 	private void generatePlants(){
-
-
-		Boolean[] takenXCoords = new Boolean[Gdx.graphics.getHeight()];
-		Boolean[] takenYCoords = new Boolean[Gdx.graphics.getWidth()];
-
-		Arrays.fill(takenXCoords, false);
-		Arrays.fill(takenYCoords, false);
-
-		for(int plantNum = 0; plantNum < 10; plantNum++) {
+		for(int plantNum = 0; plantNum < 10 ; plantNum++) {
 			int plantSizeMultiplier = 2;
 			int plantSize = rand.nextInt(10) * plantSizeMultiplier;
 
-			List<Integer> possibleXCoords = new ArrayList<>(Gdx.graphics.getHeight());
-			List<Integer> possibleYCoords = new ArrayList<>(Gdx.graphics.getWidth());
+			List<Integer> possibleXCoords = new ArrayList<>();
+			List<Integer> possibleYCoords = new ArrayList<>();
 
-			for (int i = 0; i < takenXCoords.length; i++) {
-				if (takenXCoords[i] || takenXCoords[i + plantSize]){
+			for (int i = 0; i < mapXCoordsPopulatedWithPlant.length - plantSize; i++) {
+				if (mapXCoordsPopulatedWithPlant[i] || mapXCoordsPopulatedWithPlant[i + plantSize]){
 					continue;
 				}
 				possibleXCoords.add(i);
 			}
 
-			for (int i = 0; i < takenXCoords.length; i++) {
-				if (takenYCoords[i] || takenYCoords[i + plantSize]){
+			for (int i = 0; i < mapYCoordsPopulatedWithPlant.length - plantSize; i++) {
+				if (mapYCoordsPopulatedWithPlant[i] || mapYCoordsPopulatedWithPlant[i + plantSize ]){
 					continue;
 				}
 				possibleYCoords.add(i);
 			}
 
-			int x = rand.nextInt(possibleXCoords.size());
-			int y = rand.nextInt(possibleYCoords.size());
+			if (possibleXCoords.isEmpty()|| possibleYCoords.isEmpty()) {
+				continue;
+			}
 
-			Arrays.fill(takenXCoords, x, x + plantSize, false);
-			Arrays.fill(takenYCoords, y, y + plantSize, false);
+			//todo: getting exception here
+
+			int x = possibleXCoords.get(rand.nextInt(possibleXCoords.size() - 1));
+			int y = possibleYCoords.get(rand.nextInt(possibleYCoords.size() - 1));
+
+			Arrays.fill(mapXCoordsPopulatedWithPlant, x,x + plantSize, true);
+			Arrays.fill(mapYCoordsPopulatedWithPlant, y,y + plantSize, true);
 
 			plants.add(new Plant(x, y, plantSize, plantSize, 0));
 		}
 	}
-
-//	private void setAll(List<Boolean> list, int from, int to, Boolean value){
-//		for (int i = from; i <= to; i++) {
-//			list.set(i, value);
-//		}
-//	}
-
 }

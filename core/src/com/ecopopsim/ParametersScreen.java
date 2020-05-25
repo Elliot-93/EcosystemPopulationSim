@@ -17,7 +17,7 @@ public class ParametersScreen extends ScreenAdapter {
 
 	public ParametersScreen(EcosystemPopulationSimGame game) {
 		this.game = game;
-		stage = new Stage(new ScreenViewport());
+		stage = new Stage(new ScreenViewport(), game.batch);
 		Gdx.input.setInputProcessor(stage);
 	}
 

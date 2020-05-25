@@ -13,14 +13,17 @@ public class EcosystemPopulationSimGame extends Game {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+
 		shapeRenderer = new ShapeRenderer();
 		font = new BitmapFont();
+
 		setScreen(new ParametersScreen(this));
 	}
 
 	@Override
 	public void dispose () {
 		batch.dispose();
+
 		shapeRenderer.dispose();
 		font.dispose();
 	}
